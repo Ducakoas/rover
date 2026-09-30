@@ -1,0 +1,1085 @@
+<?xml version="1.0"?>
+<robot name="research_mars_rover_aligned">
+
+  <!-- ============================================================ -->
+  <!-- MATERIALS                                                    -->
+  <!-- ============================================================ -->
+  <material name="body">
+    <color rgba="0.72 0.71 0.55 1"/>
+  </material>
+
+  <material name="body_light">
+    <color rgba="0.80 0.79 0.62 1"/>
+  </material>
+
+  <material name="dark">
+    <color rgba="0.10 0.11 0.12 1"/>
+  </material>
+
+  <material name="susp">
+    <color rgba="0.18 0.19 0.20 1"/>
+  </material>
+
+  <material name="joint">
+    <color rgba="0.29 0.30 0.31 1"/>
+  </material>
+
+  <material name="arm">
+    <color rgba="0.70 0.58 0.16 1"/>
+  </material>
+
+  <material name="mast">
+    <color rgba="0.66 0.67 0.55 1"/>
+  </material>
+
+  <material name="camera_head">
+    <color rgba="0.46 0.24 0.11 1"/>
+  </material>
+
+  <material name="rtg">
+    <color rgba="0.47 0.49 0.40 1"/>
+  </material>
+
+  <!-- ============================================================ -->
+  <!-- BASE / CHASSIS                                               -->
+  <!--                                                             -->
+  <!-- IMPORTANT:                                                   -->
+  <!-- Physics properties and suspension joint locations are kept  -->
+  <!-- compatible with the V9/V11 model. The visually misaligned    -->
+  <!-- NASA chassis/rocker/bogie meshes are replaced by primitives  -->
+  <!-- whose endpoints coincide with the real URDF joint frames.    -->
+  <!-- ============================================================ -->
+
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="130"/>
+      <inertia ixx="20" ixy="0" ixz="0" iyy="34" iyz="0" izz="40"/>
+    </inertial>
+
+    <!-- ========================================================== -->
+    <!-- DETAILED MATHWORKS CAD CHASSIS                            -->
+    <!--                                                           -->
+    <!-- The STL is the detailed chassis supplied with the         -->
+    <!-- MathWorks Mars Rover example. Source STL axes are mapped   -->
+    <!-- to the PyBullet rover frame: +X forward, +Y left, +Z up.  -->
+    <!-- The translation centers the 2.085 x 1.20 x 0.62 m CAD     -->
+    <!-- body on the base_link frame.                              -->
+    <!-- ========================================================== -->
+    <visual>
+      <origin xyz="-1.042664 -0.600000 -0.310000" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_body.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="body"/>
+    </visual>
+
+    <!-- Differential bar across the chassis, matching the MathWorks model. -->
+    <visual>
+      <origin xyz="-0.100000 0.000000 0.260000" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_diff_bar.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <!-- RTG bridge / shroud / generator visual group.  These are visual-only. -->
+    <visual>
+      <origin xyz="0.182047 0.000000 -0.658694" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_rtg_bridge.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="body"/>
+    </visual>
+
+    <visual>
+      <origin xyz="-0.720000 0.000000 0.450000" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_rtg_shroud.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="body"/>
+    </visual>
+
+    <visual>
+      <origin xyz="-0.720000 0.000000 0.444375" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_rtg.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="rtg"/>
+    </visual>
+
+    <!-- Detailed sensor mast assembly from the MathWorks CAD assets. -->
+    <visual>
+      <origin xyz="0.280000 0.060002 0.280052" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_sensor_base.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="mast"/>
+    </visual>
+
+    <visual>
+      <origin xyz="-0.102608 0.035259 0.354500" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_sensor_mast_lower.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="mast"/>
+    </visual>
+
+    <visual>
+      <origin xyz="-0.070000 0.019996 0.278500" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_sensor_ring_outer.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <visual>
+      <origin xyz="-0.070001 0.020106 0.279551" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_sensor_mast_upper.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="mast"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0.277000 0.055029 0.249500" rpy="1.57079632679 0 1.57079632679"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_sensor_head.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="camera_head"/>
+    </visual>
+
+    <!-- Small suspension mount blocks make the body-to-rocker connection explicit. -->
+    <visual>
+      <origin xyz="0.00 0.650 -0.075" rpy="0 0 0"/>
+      <geometry><box size="0.18 0.10 0.13"/></geometry>
+      <material name="body"/>
+    </visual>
+    <visual>
+      <origin xyz="0.00 -0.650 -0.075" rpy="0 0 0"/>
+      <geometry><box size="0.18 0.10 0.13"/></geometry>
+      <material name="body"/>
+    </visual>
+
+    <!-- Physics stays simple and robust; high-detail CAD is visual-only. -->
+    <collision>
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.52 0.92 0.25"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- ============================================================ -->
+  <!-- LEFT ROCKER                                                  -->
+  <!-- Joint frame is at the body-side rocker pivot.                -->
+  <!-- Front steer frame:  ( +0.80, 0, -0.33 )                     -->
+  <!-- Bogie pivot frame:  ( -0.28, 0, -0.15 )                     -->
+  <!-- ============================================================ -->
+
+  <link name="left_rocker">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.35" ixy="0" ixz="0" iyy="2.0" iyz="0" izz="2.0"/>
+    </inertial>
+
+    <!-- Pivot -> front wheel steering joint -->
+    <visual>
+      <origin xyz="0.400 0 -0.165" rpy="0 0.3914 0"/>
+      <geometry>
+        <box size="0.852 0.085 0.085"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <!-- Pivot -> bogie joint -->
+    <visual>
+      <origin xyz="-0.140 0 -0.075" rpy="0 2.6498 0"/>
+      <geometry>
+        <box size="0.318 0.085 0.085"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.065"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+
+    <!-- Preserve V9/V11 collision approximation -->
+    <collision>
+      <origin xyz="0.10 0 -0.02" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.45 0.10 0.10"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="left_rocker_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="left_rocker"/>
+    <origin xyz="0 0.70 -0.09" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.70" upper="0.70" effort="160" velocity="1.8"/>
+    <dynamics damping="5.0" friction="0.4"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- LEFT BOGIE                                                   -->
+  <!-- Bogie joint frame -> middle wheel: ( +0.42, 0, -0.18 )      -->
+  <!-- Bogie joint frame -> rear steer:   ( -0.50, 0, -0.18 )      -->
+  <!-- ============================================================ -->
+
+  <link name="left_bogie">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="6"/>
+      <inertia ixx="0.25" ixy="0" ixz="0" iyy="1.2" iyz="0" izz="1.2"/>
+    </inertial>
+
+    <!-- Bogie pivot -> middle wheel -->
+    <visual>
+      <origin xyz="0.210 0 -0.090" rpy="0 0.4049 0"/>
+      <geometry>
+        <box size="0.457 0.080 0.080"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <!-- Bogie pivot -> rear wheel -->
+    <visual>
+      <origin xyz="-0.250 0 -0.090" rpy="0 2.7960 0"/>
+      <geometry>
+        <box size="0.531 0.080 0.080"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.055"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+
+    <collision>
+      <origin xyz="-0.03 0 -0.03" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.00 0.09 0.09"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="left_bogie_joint" type="revolute">
+    <parent link="left_rocker"/>
+    <child link="left_bogie"/>
+    <origin xyz="-0.28 0 -0.15" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.85" upper="0.85" effort="120" velocity="1.8"/>
+    <dynamics damping="4.0" friction="0.3"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- RIGHT ROCKER                                                 -->
+  <!-- ============================================================ -->
+
+  <link name="right_rocker">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.35" ixy="0" ixz="0" iyy="2.0" iyz="0" izz="2.0"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.400 0 -0.165" rpy="0 0.3914 0"/>
+      <geometry>
+        <box size="0.852 0.085 0.085"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <visual>
+      <origin xyz="-0.140 0 -0.075" rpy="0 2.6498 0"/>
+      <geometry>
+        <box size="0.318 0.085 0.085"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.065"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.10 0 -0.02" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.45 0.10 0.10"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="right_rocker_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="right_rocker"/>
+    <origin xyz="0 -0.70 -0.09" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.70" upper="0.70" effort="160" velocity="1.8"/>
+    <dynamics damping="5.0" friction="0.4"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- RIGHT BOGIE                                                  -->
+  <!-- ============================================================ -->
+
+  <link name="right_bogie">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="6"/>
+      <inertia ixx="0.25" ixy="0" ixz="0" iyy="1.2" iyz="0" izz="1.2"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.210 0 -0.090" rpy="0 0.4049 0"/>
+      <geometry>
+        <box size="0.457 0.080 0.080"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <visual>
+      <origin xyz="-0.250 0 -0.090" rpy="0 2.7960 0"/>
+      <geometry>
+        <box size="0.531 0.080 0.080"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.055"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+
+    <collision>
+      <origin xyz="-0.03 0 -0.03" rpy="0 0 0"/>
+      <geometry>
+        <box size="1.00 0.09 0.09"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="right_bogie_joint" type="revolute">
+    <parent link="right_rocker"/>
+    <child link="right_bogie"/>
+    <origin xyz="-0.28 0 -0.15" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-0.85" upper="0.85" effort="120" velocity="1.8"/>
+    <dynamics damping="4.0" friction="0.3"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- LEFT FRONT STEERING + WHEEL                                  -->
+  <!-- ============================================================ -->
+
+  <link name="lf_steer">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2.0"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.03"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.11 0.13 0.18"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+  </link>
+
+  <joint name="lf_steer_joint" type="revolute">
+    <parent link="left_rocker"/>
+    <child link="lf_steer"/>
+    <origin xyz="0.80 0 -0.33" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.80" upper="0.80" effort="100" velocity="3"/>
+    <dynamics damping="0.5"/>
+  </joint>
+
+  <link name="lf_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.10" iyz="0" izz="0.20"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="-0.003982 -0.122500 0.000376" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_tread.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 -0.033497 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_hub.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+      <geometry>
+        <cylinder radius="0.215" length="0.255"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="lf_wheel_joint" type="continuous">
+    <parent link="lf_steer"/>
+    <child link="lf_wheel"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="18"/>
+    <dynamics damping="0.08" friction="0.02"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- LEFT MIDDLE WHEEL                                            -->
+  <!-- ============================================================ -->
+
+  <link name="lm_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.10" iyz="0" izz="0.20"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="-0.003982 -0.122500 0.000376" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_tread.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 -0.033497 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_hub.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+      <geometry>
+        <cylinder radius="0.215" length="0.255"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="lm_wheel_joint" type="continuous">
+    <parent link="left_bogie"/>
+    <child link="lm_wheel"/>
+    <origin xyz="0.42 0 -0.18" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="18"/>
+    <dynamics damping="0.08" friction="0.02"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- LEFT REAR STEERING + WHEEL                                   -->
+  <!-- ============================================================ -->
+
+  <link name="lr_steer">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2.0"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.03"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.11 0.13 0.18"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+  </link>
+
+  <joint name="lr_steer_joint" type="revolute">
+    <parent link="left_bogie"/>
+    <child link="lr_steer"/>
+    <origin xyz="-0.50 0 -0.18" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.80" upper="0.80" effort="100" velocity="3"/>
+    <dynamics damping="0.5"/>
+  </joint>
+
+  <link name="lr_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.10" iyz="0" izz="0.20"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="-0.003982 -0.122500 0.000376" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_tread.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 -0.033497 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_hub.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+      <geometry>
+        <cylinder radius="0.215" length="0.255"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="lr_wheel_joint" type="continuous">
+    <parent link="lr_steer"/>
+    <child link="lr_wheel"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="18"/>
+    <dynamics damping="0.08" friction="0.02"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- RIGHT FRONT STEERING + WHEEL                                 -->
+  <!-- ============================================================ -->
+
+  <link name="rf_steer">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2.0"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.03"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.11 0.13 0.18"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+  </link>
+
+  <joint name="rf_steer_joint" type="revolute">
+    <parent link="right_rocker"/>
+    <child link="rf_steer"/>
+    <origin xyz="0.80 0 -0.33" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.80" upper="0.80" effort="100" velocity="3"/>
+    <dynamics damping="0.5"/>
+  </joint>
+
+  <link name="rf_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.10" iyz="0" izz="0.20"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="-0.003982 -0.122500 0.000376" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_tread.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 -0.033497 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_hub.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+      <geometry>
+        <cylinder radius="0.215" length="0.255"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="rf_wheel_joint" type="continuous">
+    <parent link="rf_steer"/>
+    <child link="rf_wheel"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="18"/>
+    <dynamics damping="0.08" friction="0.02"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- RIGHT MIDDLE WHEEL                                           -->
+  <!-- ============================================================ -->
+
+  <link name="rm_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.10" iyz="0" izz="0.20"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="-0.003982 -0.122500 0.000376" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_tread.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 -0.033497 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_hub.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+      <geometry>
+        <cylinder radius="0.215" length="0.255"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="rm_wheel_joint" type="continuous">
+    <parent link="right_bogie"/>
+    <child link="rm_wheel"/>
+    <origin xyz="0.42 0 -0.18" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="18"/>
+    <dynamics damping="0.08" friction="0.02"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- RIGHT REAR STEERING + WHEEL                                  -->
+  <!-- ============================================================ -->
+
+  <link name="rr_steer">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="2.0"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.03"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0.055" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.11 0.13 0.18"/>
+      </geometry>
+      <material name="joint"/>
+    </visual>
+  </link>
+
+  <joint name="rr_steer_joint" type="revolute">
+    <parent link="right_bogie"/>
+    <child link="rr_steer"/>
+    <origin xyz="-0.50 0 -0.18" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.80" upper="0.80" effort="100" velocity="3"/>
+    <dynamics damping="0.5"/>
+  </joint>
+
+  <link name="rr_wheel">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="8"/>
+      <inertia ixx="0.20" ixy="0" ixz="0" iyy="0.10" iyz="0" izz="0.20"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="-0.003982 -0.122500 0.000376" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_tread.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 -0.033497 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="assets/nasa_stl/rover_chassis_wheel_hub.stl" scale="0.01 0.01 0.01"/>
+      </geometry>
+      <material name="susp"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0" rpy="1.57079632679 0 0"/>
+      <geometry>
+        <cylinder radius="0.215" length="0.255"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="rr_wheel_joint" type="continuous">
+    <parent link="rr_steer"/>
+    <child link="rr_wheel"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" velocity="18"/>
+    <dynamics damping="0.08" friction="0.02"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- ROBOTIC ARM                                                  -->
+  <!--                                                             -->
+  <!-- Primitive arm visuals are intentionally aligned exactly with -->
+  <!-- the kinematic link lengths. This prevents the old STL-origin  -->
+  <!-- offsets from making links appear disconnected.               -->
+  <!-- ============================================================ -->
+
+  <link name="arm_yaw_link">
+    <inertial>
+      <origin xyz="0 0 0.04" rpy="0 0 0"/>
+      <mass value="3"/>
+      <inertia ixx="0.06" ixy="0" ixz="0" iyy="0.06" iyz="0" izz="0.06"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0.04" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.085" length="0.16"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0 0 0.04" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.075" length="0.14"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_yaw_joint" type="revolute">
+    <parent link="base_link"/>
+    <child link="arm_yaw_link"/>
+    <origin xyz="0.48 -0.27 0.26" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.8" upper="2.8" effort="90" velocity="1.5"/>
+    <dynamics damping="0.5"/>
+  </joint>
+
+  <link name="arm_upper">
+    <inertial>
+      <origin xyz="0.40 0 0" rpy="0 0 0"/>
+      <mass value="4"/>
+      <inertia ixx="0.10" ixy="0" ixz="0" iyy="0.30" iyz="0" izz="0.30"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.395 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.79 0.10 0.10"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.075"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0.79 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.070"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.40 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.80 0.10 0.10"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_shoulder_joint" type="revolute">
+    <parent link="arm_yaw_link"/>
+    <child link="arm_upper"/>
+    <origin xyz="0 0 0.08" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.1" upper="1.6" effort="90" velocity="1.5"/>
+    <dynamics damping="0.5"/>
+  </joint>
+
+  <link name="arm_fore">
+    <inertial>
+      <origin xyz="0.38 0 0" rpy="0 0 0"/>
+      <mass value="3.5"/>
+      <inertia ixx="0.08" ixy="0" ixz="0" iyy="0.24" iyz="0" izz="0.24"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.375 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.75 0.09 0.09"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.068"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <visual>
+      <origin xyz="0.75 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.060"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.37 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.74 0.10 0.10"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_elbow_joint" type="revolute">
+    <parent link="arm_upper"/>
+    <child link="arm_fore"/>
+    <origin xyz="0.79 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.4" upper="2.4" effort="75" velocity="1.5"/>
+    <dynamics damping="0.5"/>
+  </joint>
+
+  <link name="arm_roll_link">
+    <inertial>
+      <origin xyz="0.025 0 0" rpy="0 0 0"/>
+      <mass value="0.8"/>
+      <inertia ixx="0.015" ixy="0" ixz="0" iyy="0.015" iyz="0" izz="0.015"/>
+    </inertial>
+
+    <!-- Cylinder rotated so its axis is +X, not +Z -->
+    <visual>
+      <origin xyz="0.025 0 0" rpy="0 1.57079632679 0"/>
+      <geometry>
+        <cylinder radius="0.045" length="0.10"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+  </link>
+
+  <joint name="arm_roll_joint" type="revolute">
+    <parent link="arm_fore"/>
+    <child link="arm_roll_link"/>
+    <origin xyz="0.75 0 0" rpy="0 0 0"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-2.8" upper="2.8" effort="40" velocity="2"/>
+    <dynamics damping="0.3"/>
+  </joint>
+
+  <link name="arm_wrist">
+    <inertial>
+      <origin xyz="0.11 0 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.02" ixy="0" ixz="0" iyy="0.03" iyz="0" izz="0.03"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.11 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.22 0.08 0.08"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.11 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.22 0.075 0.075"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_wrist_joint" type="revolute">
+    <parent link="arm_roll_link"/>
+    <child link="arm_wrist"/>
+    <origin xyz="0.05 0 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-2.4" upper="2.4" effort="35" velocity="1.8"/>
+    <dynamics damping="0.3"/>
+  </joint>
+
+  <link name="arm_gripper">
+    <inertial>
+      <origin xyz="0.18 0 0" rpy="0 0 0"/>
+      <mass value="1.4"/>
+      <inertia ixx="0.03" ixy="0" ixz="0" iyy="0.04" iyz="0" izz="0.04"/>
+    </inertial>
+
+    <!-- Tool/gripper body -->
+    <visual>
+      <origin xyz="0.18 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.36 0.11 0.10"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <!-- Tool tip -->
+    <visual>
+      <origin xyz="0.37 0 0" rpy="0 1.57079632679 0"/>
+      <geometry>
+        <cylinder radius="0.045" length="0.10"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.18 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.36 0.10 0.09"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="arm_wrist_yaw_joint" type="revolute">
+    <parent link="arm_wrist"/>
+    <child link="arm_gripper"/>
+    <origin xyz="0.22 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.8" upper="2.8" effort="30" velocity="2"/>
+    <dynamics damping="0.25"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- TWO-FINGER GRIPPER                                           -->
+  <!-- ============================================================ -->
+
+  <link name="gripper_left_finger">
+    <inertial>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <mass value="0.12"/>
+      <inertia ixx="0.0003" ixy="0" ixz="0" iyy="0.0006" iyz="0" izz="0.0006"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.024 0.075"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.024 0.075"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="gripper_left_joint" type="prismatic">
+    <parent link="arm_gripper"/>
+    <child link="gripper_left_finger"/>
+    <origin xyz="0.37 0.074 0" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.045" effort="30" velocity="0.15"/>
+    <dynamics damping="0.15" friction="0.02"/>
+  </joint>
+
+  <link name="gripper_right_finger">
+    <inertial>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <mass value="0.12"/>
+      <inertia ixx="0.0003" ixy="0" ixz="0" iyy="0.0006" iyz="0" izz="0.0006"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.024 0.075"/>
+      </geometry>
+      <material name="arm"/>
+    </visual>
+
+    <collision>
+      <origin xyz="0.05 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.10 0.024 0.075"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="gripper_right_joint" type="prismatic">
+    <parent link="arm_gripper"/>
+    <child link="gripper_right_finger"/>
+    <origin xyz="0.37 -0.074 0" rpy="0 0 0"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="0" upper="0.045" effort="30" velocity="0.15"/>
+    <dynamics damping="0.15" friction="0.02"/>
+  </joint>
+
+  <!-- ============================================================ -->
+  <!-- END EFFECTOR MARKER                                          -->
+  <!-- ============================================================ -->
+
+  <link name="arm_ee">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.15"/>
+      <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+    </inertial>
+
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.035"/>
+      </geometry>
+      <material name="dark"/>
+    </visual>
+  </link>
+
+  <joint name="arm_ee_fixed" type="fixed">
+    <parent link="arm_gripper"/>
+    <child link="arm_ee"/>
+    <origin xyz="0.43 0 0" rpy="0 0 0"/>
+  </joint>
+
+</robot>

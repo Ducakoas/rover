@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "C:\Matlap1\Rover\rover_journal_v11c_random_drive_fix\main.py", line 83, in main
+    run_simulation(cfg)
+  File "C:\Matlap1\Rover\rover_journal_v11c_random_drive_fix\rover_sim\simulation.py", line 815, in run_simulation
+    p.stepSimulation()
+pybullet.error: Not connected to physics server.

@@ -1,0 +1,172 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,bm}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{xcolor}
+
+\title{Fixed-Time Disturbance-Observer-Assisted Slip-Aware Torque Allocation for a Six-Wheel Rocker-Bogie Rover on Heterogeneous Uneven Terrain}
+\author{Author names to be added}
+\date{}
+
+\newcommand{\sigp}[2]{\operatorname{sig}^{#2}(#1)}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This manuscript template is synchronized with the supplied Python/PyBullet implementation. Replace all bracketed placeholders with results from the final experiment campaign. The current simulator represents rigid uneven terrain with spatially varying Coulomb friction; it does not model deformable Martian regolith.
+\end{abstract}
+
+\section{Introduction}
+Six-wheel rocker-bogie planetary rovers must maintain mobility over uneven terrain while limiting wheel slip, excessive wheel loading, and inefficient actuation. The Mars Science Laboratory traction-control work demonstrated that terrain-adaptive wheel-speed coordination can reduce adverse wheel forces and improve mobility on complex terrain \cite{toupet2018traction,toupet2020terrain}. Coordinated trajectory tracking and wheel-force allocation have also been studied using dynamic control and quadratic programming \cite{chen2021simultaneous}. Motivated by these results, this work investigates a simulation-oriented architecture that combines a fixed-time disturbance observer with slip-aware convex six-wheel torque allocation.
+
+The contributions evaluated in this study are:
+\begin{enumerate}
+\item a reproducible rigid-terrain six-wheel rover benchmark with spatially varying friction and controlled disturbance injection;
+\item a fixed-time longitudinal disturbance-observer layer for lumped terrain/contact uncertainty;
+\item a traction-constrained convex quadratic allocation of the six wheel torques using measured slip and normal-load information;
+\item an ablation study (C0--C3) over homogeneous, rough, low-friction, split-friction, and injected-disturbance scenarios.
+\end{enumerate}
+
+\section{Simulation Platform and Rover Model}
+The rover is represented as a rigid multibody system in PyBullet with a central body, rocker-bogie suspension, four steering joints and six independently actuated wheel joints. The visual geometry uses NASA-origin rover meshes; collision geometry is simplified to primitives for stable real-time contact simulation. Gravity is set to $g=\SI{3.71}{m/s^2}$.
+
+The simulation uses rigid terrain and Coulomb-type wheel--terrain friction. Accordingly, the model is not a deformable-soil terramechanics model and does not include pressure--sinkage or bulldozing resistance.
+
+Let the planar pose be $(X,Y,\psi)$, body longitudinal speed be $v_x$, yaw rate be $r$, wheel angular speeds be $\omega_i$, and wheel torque commands be $T_i$, $i\in\{1,\ldots,6\}$.
+
+\subsection{Wheel slip}
+The implemented low-speed-safe longitudinal slip ratio is
+\begin{equation}
+\lambda_i = \frac{R_w\omega_i-v_{x,i}}
+{\max\left(|v_{x,i}|,|R_w\omega_i|,v_\epsilon\right)},
+\end{equation}
+where $v_{x,i}$ is the wheel-center velocity projected onto the wheel rolling direction.
+
+\section{Reference-Path Tracking}
+A Pure Pursuit outer loop is retained in all controller cases to isolate the effect of traction control, disturbance estimation, and torque allocation. If $L_d$ is the look-ahead distance and $\alpha$ is the target-heading error, the commanded path curvature is
+\begin{equation}
+\kappa = \frac{2\sin\alpha}{L_d}, \qquad R=\kappa^{-1}.
+\end{equation}
+With half wheelbase $L$ and half track $d$, the four steering commands are
+\begin{align}
+\delta_{LF} &= \tan^{-1}\!\left(\frac{L}{R-d}\right), &
+\delta_{RF} &= \tan^{-1}\!\left(\frac{L}{R+d}\right),\\
+\delta_{LR} &= -\delta_{LF}, &
+\delta_{RR} &= -\delta_{RF}.
+\end{align}
+For each wheel center $(x_i,y_i)$, the nominal distance to the instantaneous center of rotation is
+\begin{equation}
+r_i = \sqrt{x_i^2+(R-y_i)^2},
+\end{equation}
+and the nominal angular-speed reference is
+\begin{equation}
+\omega_i^* = \frac{v^* r_i}{|R|R_w}.
+\end{equation}
+
+\section{Controller Cases}
+\subsection{C0: baseline wheel-speed PI}
+For the baseline,
+\begin{equation}
+T_i = K_{p\omega}(\omega_i^*-\omega_i)
++K_{i\omega}\int(\omega_i^*-\omega_i)dt,
+\end{equation}
+followed by torque saturation.
+
+\subsection{C1: slip-aware heuristic allocation}
+The body-speed error is $e_v=v^*-v_x$ and
+\begin{equation}
+a_{des}=\operatorname{sat}\!\left(K_{pv}e_v+K_{iv}\int e_vdt\right).
+\end{equation}
+The total wheel-torque demand without disturbance compensation is
+\begin{equation}
+T_{req}=\frac{mR_w a_{des}}{\eta_d}.
+\end{equation}
+Define the slip excess and grip weight
+\begin{equation}
+q_i=\max(|\lambda_i|-\lambda_{th},0),\qquad
+g_i=\frac{1}{1+k_\lambda q_i},
+\end{equation}
+and normalized weights $w_i=g_i/(\sum_jg_j)$. The heuristic command is
+\begin{equation}
+T_i=T_{req}w_i+k_s(\omega_i^*-\omega_i).
+\end{equation}
+
+\subsection{C2: fixed-time disturbance-observer assistance}
+A reduced longitudinal model is used for observer design,
+\begin{equation}
+\dot v_x=f_{nom}+d,
+\end{equation}
+where
+\begin{equation}
+f_{nom}=\eta_d\frac{\sum_iT_i}{mR_w}-g\sin\theta_s-a_{rr}\operatorname{sgn}\!\left(\sum_iT_i\right).
+\end{equation}
+Let $e_o=z_0-v_x$ and $\sigp{e}{p}=|e|^p\operatorname{sgn}(e)$. The implemented observer is
+\begin{align}
+\dot z_0 &= f_{nom}+z_1-a_1\sigp{e_o}{\alpha}-a_2\sigp{e_o}{\beta},\\
+\dot z_1 &= -b_1\sigp{e_o}{2\alpha-1}-b_2\sigp{e_o}{2\beta-1},
+\end{align}
+with $0.5<\alpha<1$ and $\beta>1$. The disturbance estimate is $\hat d=z_1$. Fixed-time stability concepts follow the standard literature \cite{polyakov2012fixed}; however, any formal convergence claim in the final paper must be scoped to the reduced observer error model and its stated assumptions.
+
+The compensated total torque demand is
+\begin{equation}
+T_{req}=\frac{mR_w(a_{des}-\hat d)}{\eta_d}.
+\end{equation}
+C2 uses the same heuristic allocation as C1.
+
+\subsection{C3: FTDO-assisted convex six-wheel QP allocation}
+Let $\bm{T}=[T_1,\ldots,T_6]^\top$. The proposed allocation minimizes
+\begin{align}
+J(\bm T) = {}& w_F(\bm 1^\top\bm T-T_{req})^2
++\sum_{i=1}^6 w_{\lambda,i}T_i^2 \\
+&+w_s\|\bm T-\bm T_{sync}\|_2^2
++w_\Delta\|\bm T-\bm T_{k-1}\|_2^2,
+\end{align}
+where
+\begin{equation}
+w_{\lambda,i}=w_\lambda\left[1+k_q\max(|\lambda_i|-\lambda_{th},0)^2\right],
+\end{equation}
+and
+\begin{equation}
+\bm T_{sync}=\frac{T_{req}}{6}\bm 1+k_s(\bm\omega^*-\bm\omega).
+\end{equation}
+The traction-aware box constraints are
+\begin{equation}
+|T_i|\leq \min\left(T_{max},\eta_\mu\mu_iF_{z,i}R_w\right).
+\end{equation}
+This is a convex box-constrained quadratic program. The implementation uses projected-gradient iterations with a step selected from the maximum eigenvalue of the positive-definite Hessian.
+
+\section{Experimental Design}
+The principal scenarios are: nominal uneven terrain, rough terrain, uniform low friction, left/right split friction, and an injected longitudinal disturbance. All controller cases use identical paths and terrain seeds. The default exploratory campaign uses seeds $\{7,11,19\}$; the final manuscript should increase the number of random terrain realizations if computationally practical.
+
+The main evaluation metrics are cross-track RMSE, heading RMSE, speed RMSE, RMS/peak slip, cumulative absolute slip, RMS/peak torque, torque rate, peak normal load, normal-load variation, contact-loss fraction, roll/pitch envelope, disturbance-estimation RMSE, and the mechanical-work proxy $\int\sum_i|T_i\omega_i|dt$.
+
+\section{Results}
+\subsection{Trajectory tracking}
+Insert representative trajectory and cross-track plots generated by the code.
+
+\subsection{Slip and torque allocation}
+Insert C0--C3 wheel-slip and torque results. Report trade-offs rather than selecting weights after the fact to force C3 to outperform every metric.
+
+\subsection{Disturbance-observer performance}
+Use the injected-disturbance scenario for direct comparison of $d(t)$ and $\hat d(t)$.
+
+\subsection{Aggregate robustness study}
+Insert `aggregate_metrics.csv` and the comparison figures generated by `compare.py`.
+
+\section{Discussion}
+Discuss whether QP allocation reduces slip/traction demand while maintaining path tracking. Separate improvements caused by slip awareness (C1), disturbance compensation (C2), and optimization (C3). Discuss computational cost and contact-model limitations.
+
+\section{Limitations}
+The PyBullet environment uses rigid contact and spatially varying friction rather than deformable regolith. The rover inertial parameters and collision primitives are research approximations and are not asserted to reproduce a flight rover exactly. The work/energy metric is a mechanical proxy rather than a battery-energy model.
+
+\section{Conclusion}
+Summarize only effects supported by the final experimental statistics.
+
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{document}
